@@ -43,3 +43,47 @@ function rotate_with_theta(k)
 	#ylims!(minimum(imag.(r)) - 1, maximum(imag.(r)) + 1)
 	savefig("k=" * string(k) * "_rotational_roots.png")
 end
+
+function D_1(m, n, d, b_2)
+	b_1 = d - b_2
+	if (0 <= b_1 <= m - 2)
+		val = b_1 + 1
+	elseif (m - 1 <= b_1 <= 2m - 2)
+		val = 2m - b_1 - 1
+	else
+		val = 0
+	end
+end
+
+function D_2(m, n, d, b_2)
+	alpha = 2m*n - n
+	gamma = (m - n)b_2 + n*d
+	if (alpha - m + 1 <= gamma <= alpha)
+		val = -alpha + m + gamma
+	elseif (alpha + 1 <= gamma <= alpha + m - 1)
+		val = alpha + m - gamma
+	else
+		val = 0
+	end
+end
+
+function rational_coeffs(m, n)
+	if (gcd(m,n) == 1)
+	#	for k in 0:2m - 2n
+	#		print("k: ")
+	#		print(k)
+	#		print(" --> ")
+	#		for b2 in 0:2n
+	#			print("(")
+	#			print(D_1(m,n,k + 2n - 1, b2))
+	#			print(",")
+	#			print(D_2(m,n,k + 2n - 1, b2))
+	#			print(")")
+	#		end
+	#		println("")
+	#	end
+		poly = Polynomial([sum([D_1(m,n,k + 2n - 1,b2) * D_2(m,n,k + 2n - 1,b2) for b2 in 0:2n]) for k in 0:2m - 2n], :s)
+	end
+
+end
+
