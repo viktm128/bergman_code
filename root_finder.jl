@@ -68,22 +68,78 @@ function D_2(m, n, d, b_2)
 end
 
 function rational_coeffs(m, n)
-	if (gcd(m,n) == 1)
-	#	for k in 0:2m - 2n
-	#		print("k: ")
-	#		print(k)
-	#		print(" --> ")
-	#		for b2 in 0:2n
-	#			print("(")
-	#			print(D_1(m,n,k + 2n - 1, b2))
-	#			print(",")
-	#			print(D_2(m,n,k + 2n - 1, b2))
-	#			print(")")
-	#		end
-	#		println("")
-	#	end
-		poly = Polynomial([sum([D_1(m,n,k + 2n - 1,b2) * D_2(m,n,k + 2n - 1,b2) for b2 in 0:2n]) for k in 0:2m - 2n], :s)
-	end
+	@assert m > n "m needs to be greater than n"
+	@assert gcd(m, n) == 1 "m/n must be a reduced fraction"
+
+	poly = Polynomial([sum([D_1(m,n,k + 2n - 1,b2) * D_2(m,n,k + 2n - 1,b2) for b2 in 0:2n]) for k in 0:2m - 2n], :s)
 
 end
 
+
+function summands_array(m,n)
+	# finds all coefficients involved in sum of rational_coeffs polynomial evaluated at s=-1
+	# summing rowwise across output should match the coeffs of rational_coeffs up to a negative sign
+	@assert m > n "m needs to be greater than n"
+	@assert gcd(m, n) == 1 "m/n must be a reduced fraction"
+	d1 = [(-1)^(d + 1) * D_1(m, n, d, b2) for b2 in 0:2n for d in (2n - 1):(2m-1)]
+	d2 = [D_2(m, n, d, b2) for b2 in 0:2n for d in (2n - 1):(2m-1)]
+	d1 = reshape(d1, 2(m - n) + 1, 2n + 1)
+	d2 = reshape(d2, 2(m - n) + 1, 2n + 1)
+	d1 .* d2
+end
+
+function diagonal_sum(m,n)
+	# test intution that evaluating the summands array by adding on the counter diagonals would make it easier
+	# failed intution - counter example --> m/n = 7/2
+	a = summands_array(m,n)
+	b = []
+	for j in 0:2m
+		push!(b, 0)
+		if j <= 2n
+			startrow = 0
+			startcol = j + 2
+		else
+			startrow = j - 2n
+			startcol = 2n + 2
+		end
+
+		for t in 1:min(j + 1, 2m - 2n + 1, 2m - j + 1, 2n + 1)
+			b[length(b)] += a[startrow + t, startcol  - t]
+		end
+	end
+
+	return b
+end
+
+
+function intuition_check_diagonals(M_MAX, N_MAX)
+	# iterate diagonal_sum across some collection of m/n to test for counter examples
+	for n in 2:N_MAX
+		for m in (n+1):M_MAX
+			if gcd(m,n) == 1
+				if any(diagonal_sum(m,n) .> 0)
+				       print([m,n])
+				end
+			end
+		end
+	end
+end
+
+function monotonicity_intuition_check(d, ITER_MAX)
+	@assert d % 2 > 0 "d must be odd"
+	
+	prev = 0
+	for n = 2:ITER_MAX
+		m = n + d
+		if gcd(m,n) == 1
+			new = rational_coeffs(m,n)(-1)
+			if new > prev
+				print([m,n])
+			else
+				prev = new
+			end
+		end
+	end
+	println("All cases passed")
+	
+end
