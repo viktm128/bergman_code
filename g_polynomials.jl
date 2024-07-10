@@ -23,9 +23,8 @@ function build_binomial_expansion(k)
 end
 
 
-function g_coefficients(m,n)
-	N = coeffs(rational_coeffs(m,n))
-	pt = build_binomial_expansion(m - n)
+function g_coefficients(N)
+  pt = build_binomial_expansion(Int((length(N) - 1) / 2))
 	new_coeffs = []
 	while length(N) > 0
 		push!(new_coeffs, N[1])
@@ -35,3 +34,22 @@ function g_coefficients(m,n)
 
 	return new_coeffs
 end
+
+
+function grat_coeffs(m,n)
+  N = coeffs(rational_coeffs(m,n))
+  g_coefficients(N)
+end
+
+# compute sum_0^(k - 1)(nk + 2n + 1)(s^n + s^(2k - 2 - n))
+function integer_coeffs(k)
+  c = vcat([n*k + 2n + 1 for n in 0:(k -1)], [n*k + 2n + 1 for n in (k - 2):-1:0])
+  c[k] += (k - 1) + k^2
+  return c
+end
+
+
+
+
+
+

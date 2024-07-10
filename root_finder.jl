@@ -67,6 +67,7 @@ function D_2(m, n, d, b_2)
 	end
 end
 
+# technically, there is a factor of n thats been pulled out already (hidden in the D1 value of each term)
 function rational_coeffs(m, n)
 	@assert m > n "m needs to be greater than n"
 	@assert gcd(m, n) == 1 "m/n must be a reduced fraction"
@@ -76,17 +77,29 @@ function rational_coeffs(m, n)
 end
 
 
-function summands_array(m,n)
+function d1_array(m,n)
 	# finds all coefficients involved in sum of rational_coeffs polynomial evaluated at s=-1
 	# summing rowwise across output should match the coeffs of rational_coeffs up to a negative sign
 	@assert m > n "m needs to be greater than n"
 	@assert gcd(m, n) == 1 "m/n must be a reduced fraction"
-	d1 = [(-1)^(d + 1) * D_1(m, n, d, b2) for b2 in 0:2n for d in (2n - 1):(2m-1)]
-	d2 = [D_2(m, n, d, b2) for b2 in 0:2n for d in (2n - 1):(2m-1)]
+	d1 = [D_1(m, n, d, b2) for b2 in 0:2n for d in (2n - 1):(2m-1)]
 	d1 = reshape(d1, 2(m - n) + 1, 2n + 1)
-	d2 = reshape(d2, 2(m - n) + 1, 2n + 1)
-	d1 .* d2
 end
+
+function d2_array(m,n)
+	# finds all coefficients involved in sum of rational_coeffs polynomial evaluated at s=-1
+	# summing rowwise across output should match the coeffs of rational_coeffs up to a negative sign
+	@assert m > n "m needs to be greater than n"
+	@assert gcd(m, n) == 1 "m/n must be a reduced fraction"
+	d2 = [D_2(m, n, d, b2) for b2 in 0:2n for d in (2n - 1):(2m-1)]
+	d2 = reshape(d2, 2(m - n) + 1, 2n + 1)
+end
+
+function summands_array(m, n)
+  d1_array(m,n) .* d2_array(m, n)
+end
+
+
 
 function diagonal_sum(m,n)
 	# test intution that evaluating the summands array by adding on the counter diagonals would make it easier
@@ -142,4 +155,15 @@ function monotonicity_intuition_check(d, ITER_MAX)
 	end
 	println("All cases passed")
 	
+end
+
+function cosine_coeffs(m,n)
+  rc = [sum([D_1(m,n,k + 2n - 1,b2) * D_2(m,n,k + 2n - 1,b2) for b2 in 0:2n]) for k in 0:2m - 2n]
+  return reverse(rc[1:m-n+1])
+end
+
+function fejer_differences(m,n)
+  rc = [sum([D_1(m,n,k + 2n - 1,b2) * D_2(m,n,k + 2n - 1,b2) for b2 in 0:2n]) for k in 0:2m - 2n]
+  fc = reverse(rc[1:m-n+1])
+  return fc - push!(fc[2:m-n+1], 0)
 end
