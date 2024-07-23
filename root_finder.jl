@@ -167,3 +167,22 @@ function fejer_differences(m,n)
   fc = reverse(rc[1:m-n+1])
   return fc - push!(fc[2:m-n+1], 0)
 end
+
+
+function sub_E(m, n, j)
+  return floor(Int, ((j + 1) * n - 1) // m)
+end
+
+function sub_f(m, n, j)
+  return (j + 1) * SparsePolynomial(Dict(n=>1), :s) + (m - j - 1) * SparsePolynomial(Dict(m=>1), :s)
+end
+
+function sub_g(m, n, j)
+  ej = sub_E(m, n, j)
+  return Polynomial([(j + 1 - m // n * ej), (m // n + m // n * ej - j - 1)], :s)
+end
+
+
+function sub_kernel_coeffs(m, n)
+  Int.(n .* coeffs(sum([sub_f(m, n, j) * sub_g(m, n, j) * SparsePolynomial(Dict((j + n - 1 - sub_E(m, n, j))=>1), :s) for j in 0:m-1])))
+end
