@@ -1,0 +1,7 @@
+Using Lukes sub kernel coefficients, it seemes like it will be easier to prove that they are increasing
+each subkernel has exactly 4 terms except the last one which is just m^2
+
+The first two of the four have variously increasing powers, but there is only 2-3 terms of each power in the 
+list of subkernels
+
+Worth proving this fact, and then we only need to prove finite inequalities

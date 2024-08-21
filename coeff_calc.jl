@@ -179,10 +179,9 @@ end
 
 function sub_g(m, n, j)
   ej = sub_E(m, n, j)
-  return Polynomial([(j + 1 - m // n * ej), (m // n + m // n * ej - j - 1)], :s)
+  return Polynomial(Int.(n * [(j + 1 - m // n * ej), (m // n + m // n * ej - j - 1)]), :s)
 end
 
-
-function sub_kernel_coeffs(m, n)
-  Int.(n .* coeffs(sum([sub_f(m, n, j) * sub_g(m, n, j) * SparsePolynomial(Dict((j + n - 1 - sub_E(m, n, j))=>1), :s) for j in 0:m-1])))
+function sub_kernels(m, n)
+  return [sub_f(m, n, j) * sub_g(m, n, j) * SparsePolynomial(Dict((j + n - 1 - sub_E(m, n, j))=>1), :s) for j in 0:m-1]
 end
