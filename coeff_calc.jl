@@ -44,6 +44,20 @@ function rotate_with_theta(k)
 	savefig("k=" * string(k) * "_rotational_roots.png")
 end
 
+function D_basic(lambda, mu)
+  if (mu < 0)
+    val = 0
+  elseif (mu > 2*lambda - 2) 
+    val = 0
+  elseif (0 <= mu <= lambda - 1)
+    val = mu + 1 
+  elseif (lambda <= mu <= 2*lambda - 2)
+    val = 2 * lambda - (1 + mu)
+  else
+    throw("Should never be in this case.")
+  end
+end
+
 function D_1(m, n, d, b_2)
 	b_1 = d - b_2
 	if (0 <= b_1 <= m - 2)
@@ -74,6 +88,16 @@ function rational_coeffs(m, n)
 
 	poly = Polynomial([sum([D_1(m,n,k + 2n - 1,b2) * D_2(m,n,k + 2n - 1,b2) for b2 in 0:2n]) for k in 0:2m - 2n], :s)
 
+end
+
+function almughrabi_poly(m, n)
+  val = SparsePolynomial(Dict(0=>0))
+  for b1 in 0:(2m - 2)
+    for b2 in 0:2n 
+      val += SparsePolynomial(Dict((b1 + b2)=>(D_basic(m, b1) * D_basic(m, m*b2 + n*b1 + m + n - 1 - 2*m*n))))
+    end
+  end
+  return val
 end
 
 
@@ -179,6 +203,7 @@ end
 
 function sub_g(m, n, j)
   ej = sub_E(m, n, j)
+  # in Luke's paper, the n is factored out. This keeps coefficients as integers.
   return Polynomial(Int.(n * [(j + 1 - m // n * ej), (m // n + m // n * ej - j - 1)]), :s)
 end
 
