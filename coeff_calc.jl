@@ -136,7 +136,7 @@ function diagonal_sum(m,n)
 			startrow = 0
 			startcol = j + 2
 		else
-			startrow = j - 2n
+		
 			startcol = 2n + 2
 		end
 
